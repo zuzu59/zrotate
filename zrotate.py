@@ -1,60 +1,73 @@
 # Petit script pour faire une rotation 'intelligente' d'images d'une structure de dossiers
-# zf250809.1641
+# zf250809.1556
 
 import cv2
 import numpy as np
 import os
 import argparse
-import imutils
-from imutils.object_detection import non_max_suppression
 
-def round_to_nearest_90(angle):
-    return round(angle / 90) * 90
+def is_landscape(image):
+    h, w = image.shape[:2]
+    return w > h
 
 def detect_orientation(image_path):
     image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    rectKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (17, 7))
-    sqKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (21, 21))
 
-    gray = cv2.GaussianBlur(gray, (3, 3), 0)
-    blackhat = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, rectKernel)
-    grad = cv2.Sobel(blackhat, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=-1)
-    grad = np.absolute(grad)
-    (minVal, maxVal) = (np.min(grad), np.max(grad))
-    grad = (grad - minVal) / (maxVal - minVal)
-    grad = (grad * 255).astype("uint8")
+    # Check if the image is landscape
+    if is_landscape(image):
+        # For landscape images, check if it needs a 180-degree rotation
+        # This is a simple heuristic and might need adjustments
+        # Here, we check the intensity distribution
+        top_half_intensity = np.mean(gray[:gray.shape[0]//2, :])
+        bottom_half_intensity = np.mean(gray[gray.shape[0]//2:, :])
+        if bottom_half_intensity > top_half_intensity:
+            return 180
 
-    grad = cv2.morphologyEx(grad, cv2.MORPH_CLOSE, rectKernel)
-    thresh = cv2.threshold(grad, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, sqKernel)
-    thresh = cv2.erode(thresh, None, iterations=2)
+    # Apply Gaussian blur to reduce noise
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cnts = imutils.grab_contours(cnts)
+    # Use Canny edge detection
+    edges = cv2.Canny(blurred, 50, 150, apertureSize=3)
 
-    angles = []
-    for c in cnts:
-        rect = cv2.minAreaRect(c)
-        angle = rect[-1]
-        if angle < -45:
-            angle = -(90 + angle)
-        else:
-            angle = -angle
-        angles.append(angle)
+    # Detect lines using Hough Line Transform
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=100, minLineLength=100, maxLineGap=10)
 
-    if angles:
-        average_angle = np.mean(angles)
-        return round_to_nearest_90(average_angle)
-    else:
-        return 0
+    if lines is not None:
+        angles = []
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+            angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
+            angles.append(angle)
+
+        if angles:
+            average_angle = np.mean(angles)
+            if average_angle < -45:
+                return 270
+            elif -45 <= average_angle <= 45:
+                return 0
+            else:
+                return 90
+    return 0
 
 def rotate_image(image_path, angle):
     image = cv2.imread(image_path)
     (h, w) = image.shape[:2]
     center = (w // 2, h // 2)
+
+    # Calculate the new bounding dimensions of the image
+    abs_cos = abs(np.cos(np.radians(angle)))
+    abs_sin = abs(np.sin(np.radians(angle)))
+    new_w = int(h * abs_sin + w * abs_cos)
+    new_h = int(h * abs_cos + w * abs_sin)
+
+    # Adjust the rotation matrix to take into account translation
     M = cv2.getRotationMatrix2D(center, angle, 1.0)
-    rotated = cv2.warpAffine(image, M, (w, h))
+    M[0, 2] += (new_w - w) / 2
+    M[1, 2] += (new_h - h) / 2
+
+    # Perform the rotation
+    rotated = cv2.warpAffine(image, M, (new_w, new_h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
     cv2.imwrite(image_path, rotated)
 
 def process_images(directory):
