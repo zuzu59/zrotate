@@ -1,5 +1,5 @@
 # Petit script pour faire une rotation d'images d'une structure de dossiers en fonction de son format portrait (90°) ou paysage (180°)
-# zf250809.2036
+# zf250809.2053
 
 #!/bin/bash
 
@@ -17,18 +17,19 @@ rotate_images() {
     # Parcourir tous les fichiers dans le répertoire et ses sous-répertoires
     find "$path_to_images" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | while read img; do
         # Obtenir l'orientation de l'image
-        orientation=$(identify -verbose "$img" 2>/dev/null | grep -i "Orientation:" | awk '{print $2}')
+#        orientation=$(identify -verbose "$img" 2>/dev/null | grep -i "Orientation:" | awk '{print $2}')
+        orientation=$(file "$img" |grep orient | awk -F'orientation=' '{print $2}' | awk -F',' '{print $1}')
 
 	echo -e "Orientation: "$orientation
         # Faire tourner l'image en fonction de son orientation
         case "$orientation" in
-            "RightTop") # Portrait
+            "upper-right") # Portrait
                 echo "Rotation de $img de 90 degrés"
-#                convert "$img" -rotate 90 "$img"
+                convert "$img" -rotate 90 "$img"
                 ;;
-            "TopLeft") # Paysage
+            "upper-left") # Paysage
                 echo "Rotation de $img de 180 degrés"
- #               convert "$img" -rotate 180 "$img"
+               convert "$img" -rotate 180 "$img"
                 ;;
             *)
                 echo "Aucune rotation nécessaire pour $img"
