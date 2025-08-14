@@ -1,0 +1,46 @@
+# Petit script pour faire une rotation 180° ou 270° d'images d'une structure de dossiers en fonction de son format portrait ou paysage
+# zf250812.1436
+
+#!/bin/bash
+
+# Vérifier si un chemin a été fourni
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <path_to_images>"
+    exit 1
+fi
+
+# Chemin vers le dossier contenant les images
+path_to_images="$1"
+
+# Fonction pour faire tourner les images en fonction de leur orientation
+rotate_images() {
+    # Parcourir tous les fichiers dans le répertoire et ses sous-répertoires
+    find "$path_to_images" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | while read img; do
+        # Obtenir l'orientation de l'image
+#        orientation=$(identify -verbose "$img" 2>/dev/null | grep -i "Orientation:" | awk '{print $2}')
+	echo -e "\nFiles: "$img
+#        orientation=$(file "$img" |grep orient | awk -F'orientation=' '{print $2}' | awk -F',' '{print $1}')
+	zfile=$(file "$img")
+	echo -e "zfile: "$zfile
+        orientation=$(echo $zfile |grep orient | awk -F'orientation=' '{print $2}' | awk -F',' '{print $1}')
+	echo -e "Orientation: "$orientation
+
+        # Faire tourner l'image en fonction de son orientation
+        case "$orientation" in
+            "upper-left") # Paysage
+                echo "Rotation de $img de 90 degrés"
+ #               convert "$img" -rotate 270 "$img"
+                ;;
+            "upper-right") # Portrait
+                echo "Rotation de $img de 180 degrés"
+#               convert "$img" -rotate 180 "$img"
+                ;;
+            *)
+                echo "Aucune rotation nécessaire pour $img"
+                ;;
+        esac
+    done
+}
+
+# Appeler la fonction pour faire tourner les images
+rotate_images
