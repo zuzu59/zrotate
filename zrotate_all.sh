@@ -1,46 +1,53 @@
-# Petit script pour faire une rotation 180° ou 270° d'images d'une structure de dossiers en fonction de son format portrait ou paysage
-# zf250812.1436
+# Petit script pour faire une rotation 180° ou 270° d'images d'une structure de dossiers en fonction de sa location et de son format portrait ou paysage
+# zf250815.1210
 
 #!/bin/bash
 
-# Vérifier si un chemin a été fourni
+# Vérification du nombre d'arguments
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <path_to_images>"
+    echo "Usage : $0 <chemin_de_racine>"
     exit 1
 fi
 
-# Chemin vers le dossier contenant les images
-path_to_images="$1"
+ROOT_DIR="$1"
 
-# Fonction pour faire tourner les images en fonction de leur orientation
-rotate_images() {
-    # Parcourir tous les fichiers dans le répertoire et ses sous-répertoires
-    find "$path_to_images" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | while read img; do
-        # Obtenir l'orientation de l'image
-#        orientation=$(identify -verbose "$img" 2>/dev/null | grep -i "Orientation:" | awk '{print $2}')
-	echo -e "\nFiles: "$img
-#        orientation=$(file "$img" |grep orient | awk -F'orientation=' '{print $2}' | awk -F',' '{print $1}')
-	zfile=$(file "$img")
-	echo -e "zfile: "$zfile
-        orientation=$(echo $zfile |grep orient | awk -F'orientation=' '{print $2}' | awk -F',' '{print $1}')
-	echo -e "Orientation: "$orientation
+# Vérification que le chemin existe
+if [ ! -d "$ROOT_DIR" ]; then
+    echo "Le dossier $ROOT_DIR n'existe pas."
+    exit 1
+fi
 
-        # Faire tourner l'image en fonction de son orientation
-        case "$orientation" in
-            "upper-left") # Paysage
-                echo "Rotation de $img de 90 degrés"
- #               convert "$img" -rotate 270 "$img"
-                ;;
-            "upper-right") # Portrait
-                echo "Rotation de $img de 180 degrés"
-#               convert "$img" -rotate 180 "$img"
-                ;;
-            *)
-                echo "Aucune rotation nécessaire pour $img"
-                ;;
-        esac
-    done
+
+execute_script() {
+    local dir="$1"
+    local script_name="$2"
+        echo "Exécution de $script_name dans $dir..."
+        "./$script_name $dir"
 }
 
-# Appeler la fonction pour faire tourner les images
-rotate_images
+# Dossiers pour toto.sh
+echo "Lancement de toto.sh dans :"
+for dir in "$ROOT_DIR"/01A "$ROOT_DIR"/02 "$ROOT_DIR"/03 "$ROOT_DIR"/04 "$ROOT_DIR"/05A "$ROOT_DIR"/06; do
+    if [ -d "$dir" ]; then
+        execute_script "$dir" "toto.sh"
+    fi
+done
+
+# Dossiers pour tutu.sh
+echo "Lancement de tutu.sh dans :"
+for dir in "$ROOT_DIR"/07B/impaires "$ROOT_DIR"/08B/impaires "$ROOT_DIR"/09B/impaires; do
+    if [ -d "$dir" ]; then
+        execute_script "$dir" "tutu.sh"
+    fi
+done
+
+# Dossiers pour titi.sh
+echo "Lancement de titi.sh dans :"
+for dir in "$ROOT_DIR"/07B/paires "$ROOT_DIR"/08B/paires "$ROOT_DIR"/09B/paires; do
+    if [ -d "$dir" ]; then
+        execute_script "$dir" "titi.sh"
+    fi
+done
+
+
+
