@@ -1,7 +1,17 @@
 # Petit script pour faire une rotation 180° ou 270° d'images d'une structure de dossiers en fonction de sa location et de son format portrait ou paysage
-# zf250815.1210
+# zf250820.1848
 
 #!/bin/bash
+
+
+
+
+echo "Nom du script : $0"
+echo "Répertoire du script : $(dirname $0)"
+echo "Répertoire de l'appel : $(pwd)"
+
+
+
 
 # Vérification du nombre d'arguments
 if [ "$#" -ne 1 ]; then
@@ -21,8 +31,9 @@ fi
 execute_script() {
     local dir="$1"
     local script_name="$2"
-        echo "Exécution de $script_name dans $dir..."
-        "./$script_name $dir"
+        zSCRIPT=$(pwd)/$script_name
+	echo "Exécution de $zSCRIPT dans $dir"
+        $zSCRIPT "$dir"
 }
 
 # Dossiers pour toto.sh
