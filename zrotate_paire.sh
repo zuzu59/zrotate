@@ -1,5 +1,5 @@
-# Petit script pour faire une rotation 90° horaire d'images d'une structure de dossiers en fonction de son format paysage
-# zf250810.1912
+# Petit script pour faire une rotation 90° horaire ou de 0° horaire d'images d'une structure de dossiers en fonction de son format paysage
+# zf250821.1217
 
 #!/bin/bash
 
@@ -25,11 +25,11 @@ rotate_images() {
         case "$orientation" in
             "upper-left") # Paysage
                 echo "Rotation de $img de 90 degrés"
-                convert "$img" -rotate 90 "$img"
+#                convert "$img" -rotate 90 "$img"
                 ;;
-            "toto") # Paysage
+            "toto") # Portrait
                 echo "Rotation de $img de 180 degrés"
-               convert "$img" -rotate 180 "$img"
+#               convert "$img" -rotate 180 "$img"
                 ;;
             *)
                 echo "Aucune rotation nécessaire pour $img"

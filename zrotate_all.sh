@@ -1,5 +1,5 @@
 # Petit script pour faire une rotation 180° ou 270° d'images d'une structure de dossiers en fonction de sa location et de son format portrait ou paysage
-# zf250820.1848
+# zf250821.1224
 
 #!/bin/bash
 
@@ -40,7 +40,7 @@ execute_script() {
 echo "Lancement de toto.sh dans :"
 for dir in "$ROOT_DIR"/01A "$ROOT_DIR"/02 "$ROOT_DIR"/03 "$ROOT_DIR"/04 "$ROOT_DIR"/05A "$ROOT_DIR"/06; do
     if [ -d "$dir" ]; then
-        execute_script "$dir" "toto.sh"
+        execute_script "$dir" "zrotate_01_06.sh"
     fi
 done
 
@@ -48,7 +48,7 @@ done
 echo "Lancement de tutu.sh dans :"
 for dir in "$ROOT_DIR"/07B/impaires "$ROOT_DIR"/08B/impaires "$ROOT_DIR"/09B/impaires; do
     if [ -d "$dir" ]; then
-        execute_script "$dir" "tutu.sh"
+        execute_script "$dir" "zrotate_impaire.sh"
     fi
 done
 
@@ -56,7 +56,7 @@ done
 echo "Lancement de titi.sh dans :"
 for dir in "$ROOT_DIR"/07B/paires "$ROOT_DIR"/08B/paires "$ROOT_DIR"/09B/paires; do
     if [ -d "$dir" ]; then
-        execute_script "$dir" "titi.sh"
+        execute_script "$dir" "zrotate_paire.sh"
     fi
 done
 
