@@ -1,5 +1,5 @@
 # Petit script pour faire une rotation 180° horaire ou de 90° horaire d'images d'une structure de dossiers en fonction de son format paysage
-# zf250821.1209
+# zf250821.1435
 
 #!/bin/bash
 
@@ -20,18 +20,19 @@ rotate_images() {
 #        orientation=$(identify -verbose "$img" 2>/dev/null | grep -i "Orientation:" | awk '{print $2}')
         orientation=$(file "$img" |grep orient | awk -F'orientation=' '{print $2}' | awk -F',' '{print $1}')
 
-	echo -e "Orientation: "$orientation
+#	echo -e "Orientation: "$orientation
         # Faire tourner l'image en fonction de son orientation
         case "$orientation" in
             "upper-left") # Paysage
                 echo "Rotation de $img de 180 degrés"
-#                convert "$img" -rotate 180 "$img"
+                convert "$img" -rotate 180 "$img"
                 ;;
             "upper-right") # Portrait
                 echo "Rotation de $img de 90 degrés"
-#               convert "$img" -rotate 90 "$img"
+               convert "$img" -rotate 90 "$img"
                 ;;
             *)
+		echo -e "Orientation: "$orientation
                 echo "Aucune rotation nécessaire pour $img"
                 ;;
         esac
