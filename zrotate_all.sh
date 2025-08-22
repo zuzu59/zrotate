@@ -3,15 +3,9 @@
 
 #!/bin/bash
 
-
-
-
 echo "Nom du script : $0"
 echo "Répertoire du script : $(dirname $0)"
 echo "Répertoire de l'appel : $(pwd)"
-
-
-
 
 # Vérification du nombre d'arguments
 if [ "$#" -ne 1 ]; then
@@ -26,7 +20,6 @@ if [ ! -d "$ROOT_DIR" ]; then
     echo "Le dossier $ROOT_DIR n'existe pas."
     exit 1
 fi
-
 
 execute_script() {
     local dir="$1"
@@ -61,6 +54,3 @@ for dir in "$ROOT_DIR"/07B/paires "$ROOT_DIR"/08B/paires "$ROOT_DIR"/09B/paires;
 	echo "titi"
     fi
 done
-
-
-

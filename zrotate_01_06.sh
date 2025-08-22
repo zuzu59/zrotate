@@ -1,16 +1,17 @@
 # Petit script pour faire une rotation 180° horaire ou de 90° horaire d'images d'une structure de dossiers en fonction de son format paysage
-# zf250821.1435
+# zf250822.1639
 
 #!/bin/bash
 
 # Vérifier si un chemin a été fourni
-if [ "$#" -ne 1 ]; then
+if [ $# -eq 0 ]; then
     echo "Usage: $0 <path_to_images>"
     exit 1
 fi
 
 # Chemin vers le dossier contenant les images
-path_to_images="$1"
+path_to_images="$*"
+echo -e "path_to_images: "$path_to_images
 
 # Fonction pour faire tourner les images en fonction de leur orientation
 rotate_images() {
